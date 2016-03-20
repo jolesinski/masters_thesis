@@ -1,0 +1,97 @@
+\documentclass[en,11pt]{aghdpl}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{verbatim}
+\usepackage{booktabs}
+\usepackage{mathtools}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{float}
+\lstloadlanguages{TeX}
+
+\lstset{
+  literate={ą}{{\k{a}}}1
+           {ć}{{\'c}}1
+           {ę}{{\k{e}}}1
+           {ó}{{\'o}}1
+           {ń}{{\'n}}1
+           {ł}{{\l{}}}1
+           {ś}{{\'s}}1
+           {ź}{{\'z}}1
+           {ż}{{\.z}}1
+           {Ą}{{\k{A}}}1
+           {Ć}{{\'C}}1
+           {Ę}{{\k{E}}}1
+           {Ó}{{\'O}}1
+           {Ń}{{\'N}}1
+           {Ł}{{\L{}}}1
+           {Ś}{{\'S}}1
+           {Ź}{{\'Z}}1
+           {Ż}{{\.Z}}1
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,shapes,positioning,shadows,trees}
+
+%---------------------------------------------------------------------------
+
+\author{Jakub Olesiński}
+\shortauthor{J. Olesiński}
+
+\titlePL{Rozpoznawanie obiektów na obrazach RGB-D  pod kątem zastosowań w robotyce}
+\titleEN{Object recognition in RGB-D images for robotic applications.}
+
+\shorttitlePL{Object recognition in RGB-D images for robotic applications.}
+\shorttitleEN{Object recognition in RGB-D images for robotic applications.}
+
+\thesistype{Praca dyplomowa magisterska}
+\thesistypeEN{Master of Engineering Thesis}
+
+\supervisor{dr inż. Paweł Rotter}
+
+\degreeprogramme{Automatyka i Robotyka}
+\degreeprogrammeEN{Automatics and Robotics}
+
+\date{2016}
+
+\department{Katedra Automatyki i Inżynierii Biomedycznej}
+\departmentEN{Department of Automatics and Bioengineering}
+
+\faculty{Wydział Elektrotechniki, Automatyki,\protect\\[-1mm] Informatyki i Inżynierii Biomedycznej}
+\facultyEN{Faculty of Electrical Engineering, Automatics, Computer Science and Biomedical Engineering}
+
+\acknowledgements{Many thanks to all the people and beware global warming}
+
+
+\setlength{\cftsecnumwidth}{10mm}
+
+%---------------------------------------------------------------------------
+\setcounter{secnumdepth}{4}
+
+\begin{document}
+
+\titlepages
+\setcounter{tocdepth}{3}
+\tableofcontents
+\clearpage
+
+\include{1intro}
+\include{2rozdzial1}
+%\include{3rozdzial2}
+%\include{4rozdzial3}
+%\include{5rozdzial4}
+\include{6summary}
+
+\bibliographystyle{ieeetr}
+\bibliography{bibliografia}
+
+\end{document}
