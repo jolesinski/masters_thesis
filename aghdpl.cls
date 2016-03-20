@@ -167,7 +167,7 @@ Supervisor: & {\itshape \@supervisor}\\
 
 \vspace*{17mm}
 
-\centerline{\small\sffamily Krak\'{o}w, 2015}
+\centerline{\small\sffamily Krak\'{o}w, 2016}
 
 
 \clearpage \titlepage
