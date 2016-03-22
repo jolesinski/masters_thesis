@@ -8,10 +8,28 @@
 % Aim - 
 % Contents -
 
+The aim of this work is to survey modern RGB-D image processing algorithms for model-based object recognition. Analysis of each method is focused on their usability in time and resource constrained robotic environment. Based on provided performance tests, selected methods will be used to develop a complete object recognition system applicable in robotics.
 
+The first chapter provides background on the RGB-D imaging. A brief introduction to depth acquisiton techniques is provided.
+% Furthermore, different representations of the RGB-D data are discussed, together with conversion methods and their performance.
+Finally, implementation and testing details are provided, including software tools, hardware platforms and example datasets. % Software tools. Testing environment settled (hardware and datasets).
+% Related work - where?
+Second chapter introduces popular representation formats of combined color and depth data. Plain RGB-D images, point clouds and TSDF are discussed. For each format, its features and applicability is described. Efficient data storage, conversion algorithms and processing overhead are tested. % Octree!
+Third chapter's content is focused on popular keypoint detection algorithms. Analysis of SUCH and SUCH and SUCH is provided.
+In fourth, point cloud segmentation is considered.
+Fifth chapter touches problems such as normal estimation, data alignment and matching methods. Comparative survey of the most popular descriptor types is provided in the sixth chapter. Their descriptive capabilites are tested against matching algorithms. A complete solution is proposed followingly, its performance is analysed with hypothesis verification methods, such as SUCH, and stessed on the sample datasets. Online performance tests are also provided.
+% Less chapters
+% Next chapter - neural network classifier with preprocessing
+In the final chapter, robotic application scenarios are proposed. %rozważany
+Developed system is implemented in a robotic simulator, to test its performance.
 
-
-
-
-
-
+% 1st - RGB-D basics. Basics, Background, Problem background, Project backgrount, Project settlement, FIND EXAMPLE INTRODUCTIONS
+%% Includes: color + depth intro, depth acquisition, work environment: software, hardware and datasets, and related work (pipelines).
+% 2nd - Preprocessing
+%% Includes: representation, neighbourhood, viewpoint transformations, noise filtering, segmentation, keypoint detection
+% 3rd - Recognition
+%% Includes: Alignment methods, matching, descriptors, hypothesis verification
+% 4th - Classification
+%% Includes: Convolutional neural network, training, tests
+% 5th - Applications
+%% Includes: Scenarios with simulation
