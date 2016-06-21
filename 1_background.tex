@@ -23,11 +23,14 @@ The field of RGB-D image processing was developing slowly, until the release of 
 \section{Software tools}
 \label{sec:software}
 
-% OpenCV
-% CUDA
-% Ecto
-% PCL
+Throughout this work, all of the software was developed with an extensive use of the Point Cloud Library (PCL)\cite{Rusu_ICRA2011_PCL}, which is an open source C++ library for 2D/3D image and point cloud processing. PCL provides implementations of  a multitude of novel algorithms for 3D filtering, feature estimation, segmentation, registration and model fitting, together with tools for visualization and camera interfacing. Since 2011, it is developed by a large scientific community and maintained by the Open Perception foundation. PCL is an 3D equivalent of the OpenCV, the largest computer vision software library [ref]. Methods developed under this project were also aided by OpenCV tools, in places where classic 2D image processing was sufficient.
+Most promising algorithms analysed in this work was parallelized with CUDA GPU  computing framework to optimize processing time.
 % ROS
+% Ecto
+
+
+
+
 
 %---------------------------------------------------------------------------
 
@@ -38,6 +41,28 @@ The field of RGB-D image processing was developing slowly, until the release of 
 %% Lenovo Y50-70
 %% NVidia Jetson TK1
 
+
+
+Testing of implemented algorithms was done on two hardware platforms: an embedded computing board NVidia Jetson TK1 and personal laptop Lenovo Y50-70. Parameters of both computers are summarized in table [x]. 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{r c | c}
+& NVidia Jetson TK1 & Lenovo Y50-70 \\ 
+ \hline
+ CPU:& ARM Cortex-A15 2.32GHz x4 & Intel Core i7-4720HQ 2.60GHz x4\\
+ GPU:& NVIDIA Kepler GK20a & NVidia GeForce GTX 960M \\
+ &with 192 SM3.2 CUDA cores& with 640 SM5 CUDA Maxwell cores\\
+ &(upto 326 GFLOPS)&(upto xx GFLOPS)\\
+ RAM:& 2GB DDR3L 933MHz 64 bit&  16GB DDR3L 1600MHz (4GB GPU 2.5Mhz 128bit)
+\end{tabular}
+\caption{Test hardware specification}
+\label{tab:hardware}
+\end{table}
+
+Recognition system was validated against sample dataset from XXX, which provides full object models together with real world scene scans and ground truth position annotations. To 
+
+
 % Sample datasets
 %% Washington
 %% TUM
@@ -47,6 +72,9 @@ Print stanford bunny ?
 
 Washington V2 Database - how to read it into pcl
 
+Synthetic dataset from APC gazebo.
+http://pracsyslab.org/rutgers_apc_rgbd_dataset
+https://arxiv.org/pdf/1509.01277.pdf
 
 %BENCHMARKS
 
