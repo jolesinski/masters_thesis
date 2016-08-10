@@ -3,22 +3,50 @@
 \chapter{Preprocessing}
 \label{cha:preprocessing}
 
-rgb-d, point clouds, tsdf
-algos for conversion, timing
+This chapter describes basic RGB-D image processing tool set, that prepares an input image for extracting relevant information during object recognition.
 
 %---------------------------------------------------------------------------
 
 \section{Representation}
 \label{sec:representation}
 
-segmentation
+
+%rgb-d, point clouds, tsdf
+%algos for conversion, timing
+
+Depth and colour information of the environment can be represented in computer memory by the means of various data structures, which differ in their complexity and applicability. In case of typical, low-cost RGB-D cameras, the raw data that is retrieved from the device firmware and operating system drivers come in a form of two images, one from a conventional colour camera and the other from the depth sensor, as depicted on Figure x.
+
+Figure XXX - drawing of camera with 2 raycasts, 2 images
+
+Data retrieved from a depth sensor have a form of one channel, two dimensional image. Each pixel contains measurement of the distance between depth camera reference frame origin and a corresponding point on the reflected surface. In case of Asus Xtion sensor, this data is stored as 32 bit floating point values. It is important to note, that depending on the acquisition method, not all of the surface point distances are measured. For example, if the surface is translucent, most sensors will fail to retrieve proper distance. Such situation is reflected in data by the use of \textit{Not a Number (NaN)} pixel values.
+
+Due to the displacement between color and depth sensor [reference], RGB-D cameras require a calibration step to align the measurements. For this purpose, open source packages such as [XXX] can be used. Finally, successful RGB-D data alignment yields a four channel digital image, which can be defined more formally as:
+\begin{equation}
+\label{eq:rgbdimage}
+I: \{1,\dots,M\} \times \{1,\dots,N\} \rightarrow [0,1]^4,\qquad I(u,v) =  \begin{bmatrix} I_R(u,v) \\ I_G(u,v) \\ I_B(u,v) \\ I_D(u,v) \end{bmatrix},
+\end{equation}
+where:
+\begin{itemize}
+\item $M \in \mathbb{N}$, $N \in \mathbb{N}$ - row and column image size,
+\item $I_R(u,v), I_G(u,v), I_B(u,v)$ - red, green and blue colour channel intensities,
+\item $I_D(u,v)$ - depth channel intensity
+\end{itemize}
+
+RGB-D image formulation \ref{eq:rgbdimage} is mostly suitable for per channel, classic two-dimensional image processing, such as applying morphological operators or linear filters [XXXImProc]. It does, however, limit the three dimensional surface information to a single viewpoint, which is undesirable for some applications in robotics, especially for object modelling and environment mapping. A generalized data representation that overcomes this limitation is called a \textit{point cloud}. It can be defined as a point set $C \subset \mathbb{R}^N$ of $N$-dimensional vectors. Depending on the usage, the points can represent different image modalities and features, such as point location in some reference frame, colour, surface normal vector or more advanced descriptors (see \ref{sec:descriptors}). Direct conversion from a depth map to point cloud, requires projective transformation [XXX] of the depth channel to render Cartesian $x,y,z$ point coordinates in camera reference frame. In this manner, multiple RGB-D image frames, taken from different viewpoints can be stored within a single point cloud, by registering their points to a common coordinate system.
+
+There are other possible representations of depth data. In contrast to point clouds, \textit{Patch volumes} [XX] and \textit{Signed distance functions} are dense representations of the three-dimensional environment, where each point represents distance to the nearest surface. Patch volumes use BLABLABLA. OctoMaps use BLABLABLA. Those representations, however, are mainly used for environment mapping and SLAM applications. This work will further focus on point clouds, as they are the most covered representation for object recognition. ??
 
 %---------------------------------------------------------------------------
 
 \section{Neighbourhood}
 \label{sec:neighbourhood}
 
-segmentation
+
+From computational point of view, a point cloud that is directly converted from RGB-D image can be internally stored in a two dimensional array of points, with array elements corresponding to image pixels. Point clouds with such data arrangement are commonly referred to as \textit{organized}. Image-like ordering is beneficial in 
+
+Organized neighbourhoods.
+KD-tree.
+Flann.
 
 
 %---------------------------------------------------------------------------
@@ -34,8 +62,7 @@ segmentation
 \section{Noise filtering}
 \label{sec:segmentation}
 
-segmentation
-
+Types of noise, frequency response, low pass filtering, nonlinear filtering
 
 %---------------------------------------------------------------------------
 
