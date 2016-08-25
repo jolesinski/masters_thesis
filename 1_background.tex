@@ -5,14 +5,21 @@
 
 %---------------------------------------------------------------------------
 
-\section{Motivation}
-\label{sec:motivation}
+\section{Problem formulation}
+\label{sec:problem}
 
-Read and merge few article intros
+Given an input image and an object of interest, the task of object recognition is to provide answer to the following questions:
+\begin{itemize}
+\item Is the queried object \textit{present} in the image?
+\item If it is, then what is the \textit{pose} of the object?
+\end{itemize}
+If the object has the properties of a rigid body, its pose is given by the linear and angular position.
 
-%% advent of rgbd imaging
 
-The field of RGB-D image processing was developing slowly, until the release of Microsoft's Kinect in 2010. This low-cost camera gained significant scientific interest because of the potential it brought into the areas of virtual reality.
+Object recognition is a process that comprises determination of both object instance presence and its pose in a given scene image.   
+
+Robotics: why object recognition
+Object recognition: why RGB-D
 
 %% methods of depth acquisition
 %% applications in robotics, mapping, 3d modeling
