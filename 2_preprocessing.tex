@@ -41,8 +41,15 @@ There are other possible representations of depth data. In contrast to point clo
 \section{Neighbourhood}
 \label{sec:neighbourhood}
 
+Similarly to classical image processing, a wide range of point cloud processing algorithms rely on the notion of point neighbourhood. Given a metric function $d$ and a query point $p_q$ in the point cloud $P$, two commonly used types of neighbourhoods can be defined. A \textit{r-neighbourhood} is a set composed of all the points $p_i \in P$ that lie within a sphere of a radius $r$ and a center in $p_q$, thus satisfying the condition
+\begin{equation}
+d(p_	q, p_i) \leq r.
+\end{equation}
+The other type is \textit{k-neighbourhood}, a set of $k$ nearest points in the sense of given metric. Proper determination of neighbourhood size parameters, either $r$ or $k$ correspondingly, is crucial in further analysis. Too small values do not provide enough information about the surface. Too large, on the other hand, will average the surface and skip small details. Complexity and efficiency of neighbourhood search depends on different internal data representation in a point cloud.
 
-From computational point of view, a point cloud that is directly converted from RGB-D image can be internally stored in a two dimensional array of points, with array elements corresponding to image pixels. Point clouds with such data arrangement are commonly referred to as \textit{organized}. Image-like ordering is beneficial in 
+From computational point of view, a point cloud that is directly converted from RGB-D image can be internally stored in a two dimensional array of points, with elements corresponding to image pixels. Point clouds with such data arrangement are commonly referred to as \textit{organized}. Image-like ordering is beneficial, because it reflects the spatial distribution of points directly into memory.
+
+
 
 Organized neighbourhoods.
 KD-tree.
