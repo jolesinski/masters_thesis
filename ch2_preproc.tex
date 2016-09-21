@@ -1,7 +1,7 @@
 % 2nd - Preprocessing
 %% Includes: representation, neighbourhood, viewpoint transformations, noise filtering, segmentation, keypoint detection
-\chapter{Preprocessing}
-\label{cha:preprocessing}
+\chapter{Pre-processing}
+\label{cha:preproc}
 
 This chapter describes basic RGB-D image processing tool set, that prepares an input image for extracting relevant information during object recognition.
 
@@ -32,7 +32,7 @@ where:
 \item $I_D(u,v)$ - depth channel intensity
 \end{itemize}
 
-RGB-D image formulation \ref{eq:rgbdimage} is mostly suitable for per channel, classic two-dimensional image processing, such as applying morphological operators or linear filters [XXXImProc]. It does, however, limit the three dimensional surface information to a single viewpoint, which is undesirable for some applications in robotics, especially for object modelling and environment mapping. A generalized data representation that overcomes this limitation is called a \textit{point cloud}. It can be defined as a point set $C \subset \mathbb{R}^N$ of $N$-dimensional vectors. Depending on the usage, the points can represent different image modalities and features, such as point location in some reference frame, colour, surface normal vector or more advanced descriptors (see \ref{sec:descriptors}). Direct conversion from a depth map to point cloud, requires projective transformation [XXX] of the depth channel to render Cartesian $x,y,z$ point coordinates in camera reference frame. In this manner, multiple RGB-D image frames, taken from different viewpoints can be stored within a single point cloud, by registering their points to a common coordinate system.
+RGB-D image formulation \ref{eq:rgbdimage} is mostly suitable for per channel, classic two-dimensional image processing, such as applying morphological operators or linear filters [XXXImProc]. It does, however, limit the three dimensional surface information to a single viewpoint, which is undesirable for some applications in robotics, especially for object modelling and environment mapping. A generalized data representation that overcomes this limitation is called a \textit{point cloud}. It can be defined as a point set $C \subset \mathbb{R}^N$ of $N$-dimensional vectors. Depending on the usage, the points can represent different image modalities and features, such as point location in some reference frame, colour, surface normal vector or more advanced descriptors (see chap. \ref{cha:feature}). Direct conversion from a depth map to point cloud, requires projective transformation [XXX] of the depth channel to render Cartesian $x,y,z$ point coordinates in camera reference frame. In this manner, multiple RGB-D image frames, taken from different viewpoints can be stored within a single point cloud, by registering their points to a common coordinate system.
 
 There are other possible representations of depth data. In contrast to point clouds, \textit{Patch volumes} [XX] and \textit{Signed distance functions} are dense representations of the three-dimensional environment, where each point represents distance to the nearest surface. Patch volumes use BLABLABLA. OctoMaps use BLABLABLA. Those representations, however, are mainly used for environment mapping and SLAM applications. This work will further focus on point clouds, as they are the most covered representation for object recognition. ??
 
@@ -58,16 +58,8 @@ Flann.
 
 %---------------------------------------------------------------------------
 
-\section{Transformations}
-\label{sec:transformations}
-
-segmentation
-
-
-%---------------------------------------------------------------------------
-
 \section{Noise filtering}
-\label{sec:segmentation}
+\label{sec:noise}
 
 Types of noise, frequency response, low pass filtering, nonlinear filtering
 
@@ -75,13 +67,6 @@ Types of noise, frequency response, low pass filtering, nonlinear filtering
 
 \section{Segmentation}
 \label{sec:segmentation}
-
-segmentation
-
-%---------------------------------------------------------------------------
-
-\section{Keypoints}
-\label{sec:keypoints}
 
 segmentation
 

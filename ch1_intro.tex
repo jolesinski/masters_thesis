@@ -1,0 +1,94 @@
+\chapter{Introduction}
+\label{cha:introduction}
+
+The aim of this work is to survey modern RGB-D image processing algorithms for model-based object recognition. Analysis of each method is focused on their usability in time and resource constrained robotic environment. Based on provided performance evaluation, selected methods are used to develop a complete, applicable in robotics, object recognition system.
+
+The first chapter provides project background. A formal problem statement is included and followed by categorized solution proposals found in literature, outlining the scientific context of this work. The RGB-D imaging basics are subsequently introduced, together with software tools and test environment utilized throughout the project.
+
+Second chapter introduces preprocessing techniques. Firstly, different data representation and conversion methods are discussed. Basic depth processing operations are introduced afterwards, including spatial transformations, neighbourhood selection and normal estimation. Different noise types encountered in RGB-D images and their corresponding filtering methods are further discussed.
+
+Model fitting with sparse feature matching algorithms is presented in chapter three. Selected keypoint detectors and descriptors of both color and shape modalities are compared and an efficient matching technique is provided. Further, correspondence clustering and pose estimation methods are evaluated.
+% Pose estimation may go into postprocessing
+
+The following chapter is about 
+
+%---------------------------------------------------------------------------
+
+\section{Problem statement}
+\label{sec:problem}
+
+Given an input image and an object of interest, the task of object recognition is to provide answer to the following questions:
+\begin{itemize}
+\item Is the queried object \textit{present} in the image?
+\item If it is, then what is the \textit{pose} of the object?
+\end{itemize}
+If the object has the properties of a rigid body, its pose is given by the linear and angular position.
+
+
+Object recognition is a process that comprises determination of both object instance presence and its pose in a given scene image.   
+
+Robotics: why object recognition
+Object recognition: why RGB-D
+
+%% methods of depth acquisition
+%% applications in robotics, mapping, 3d modeling
+
+
+%---------------------------------------------------------------------------
+
+\section{Related work}
+\label{sec:related}
+
+
+%---------------------------------------------------------------------------
+
+\section{Software tools}
+\label{sec:software}
+
+Throughout this work, most of the software was developed with an extensive use of the Point Cloud Library (PCL)\cite{Rusu_ICRA2011_PCL}, which is an open source C++ library for three dimensional image processing. Since 2011, it is developed by a large scientific community, maintained by the Open Perception foundation and delivered under BSD license. PCL provides implementations of a multitude of novel algorithms for 3D filtering, feature estimation, segmentation, registration and model fitting, together with tools for visualization and camera interfacing.
+
+The Open Computer Vision (OpenCV)\cite{OpenCV} library was utilized as another source of implementation for the analysed algorithms. OpenCV, which is a more mature project, developed since 1999 is likewise delivered under open source BSD license. While PCL is mainly focused on volumetric data analysis, OpenCV provides a wide array of functions for 2D intensity and color image processing.
+
+
+% ROS
+% Ecto
+
+
+
+
+
+%---------------------------------------------------------------------------
+
+\section{Test environment}
+\label{sec:testhardware}
+
+% Hardware
+%% Lenovo Y50-70
+%% NVidia Jetson TK1
+
+
+
+Recognition system was validated against sample dataset from XXX, which provides full object models together with real world scene scans and ground truth position annotations. To 
+
+
+
+Testing of implemented algorithms was done on two hardware platforms: an embedded computing board NVidia Jetson TK1 and personal laptop Lenovo Y50-70. Parameters of both computers are summarized in table [x]. 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{r c | c}
+& NVidia Jetson TK1 & Lenovo Y50-70 \\ 
+ \hline
+ CPU:& ARM Cortex-A15 2.32GHz x4 & Intel Core i7-4720HQ 2.60GHz x4\\
+ GPU:& NVIDIA Kepler GK20a & NVidia GeForce GTX 960M \\
+ &with 192 SM3.2 CUDA cores& with 640 SM5 CUDA Maxwell cores\\
+ &(upto 326 GFLOPS)&(upto xx GFLOPS)\\
+ RAM:& 2GB DDR3L 933MHz 64 bit&  16GB DDR3L 1600MHz (4GB GPU 2.5Mhz 128bit)
+\end{tabular}
+\caption{Test hardware specification}
+\label{tab:hardware}
+\end{table}
+
+
+
+%---------------------------------------------------------------------------
