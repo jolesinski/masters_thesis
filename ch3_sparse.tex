@@ -4,21 +4,44 @@
 \chapter{Sparse feature matching}
 \label{cha:feature}
 
-Solutions to problem stated in section \ref{sec:problem} are commonly divided \cite{something} into feature-based and template-based. The former approach
+Solutions to problem stated in section \ref{sec:problem} are commonly divided \cite{something} into feature-based and template-based. The former approach, also referred to as local matching, is focused on comparing point neighbourhoods between the scene and model datasets. 
+
+The solution in such methods is composed of several steps. Firstly, an input subset with elements of rich and distinguishable neighbourhood information is selected. Points that belong to this subset are referred to as \textit{keypoints}. For each keypoint, its neighbourhood information is expressed in the form of a \textit{descriptor} vector. By the means of selected metric, commonly the $L_2$ norm, descriptors are further compared between the scene and model datasets, to find \textit{correspondences} with minimal distance. Such point pairs are then grouped to share similar geometric constrains and finally, the largest clusters are used to calculate affine transformation, which renders the initial problem solution.
+
+The inherent locality of feature matching methods has direct implications on the solution performance. Such methods are by design robust to occlusions \cite{something}. Each point is processed independently, which enables data parallelization to boost time performance. Conversely, keypoint identification requires costly analysis of the whole input dataset, thus a balance between the recognition performance and time effectiveness is required \cite{somethin} for real-time applications.
 
 %---------------------------------------------------------------------------
 
 \section{Shape description} %SHOT}
 \label{sec:shape} %shot}
 
-alignment
+There is a multitude of proposals for shape key-point detectors existing in literature. An overview and performance evaluation of the most popular methods can be found in \cite{keypoints1} and \cite{keypoints2}. From both evaluations, the \textit{Intrinsic Shape Signatures} (ISS) \cite{ISS} detecor is worth particular attention. \cite{keypoints1} states that ISS, as a fixed-scale detector, copes well with full three-dimensional models and provides a proper balance between the repeatability rate and time efficiency. In \cite{keypoints2}, the ISS is evaluated with the best repeatability rate among detector implementations available in PCL. The ISS introduces a saliency measure, defined by the smallest eigenvalue of the neighbourhood scatter matrix. For a given point $p$ and its neighbourhood $N$, the scatter matrix $\Sigma$ is given by
+\begin{equation}
+\label{eq:scatter}
+\Sigma(p,N) = \frac{1}{|N|} \sum\limits_{q\in N}(q -\mu_p)(q - \mu_p)^T,\ \mu_p = \frac{1}{|N|}\sum\limits_{q\in N}q
+\end{equation}
+% originally defined as weighted matrix, need to check how its implemented
+By denoting the eigenvalues of $\Sigma(p, N)$ as $\lambda_1 > \lambda_2 > \lambda_3$, the ISS detector classifies $p$ as a keypoint, if the condition is satisfied
+\begin{equation}
+\label{iss}
+\frac{\lambda_2}{\lambda_1} < \epsilon_1 \  \land \  \frac{\lambda_3}{\lambda_2} < \epsilon_2 \ \land \  \lambda_3 > \epsilon_3.
+\end{equation} 
+Thresholds $\epsilon_1$ and $\epsilon_2$ are meant to provide sufficient difference in variations along principal directions, which aids in estimation of a repeatable reference frames for further description stages. The third threshold $\epsilon_3$ ensures that the variations are large enough to consider the point as distinguishable. An example of keypoints detected with ISS is presented on figure \ref{fig:iss}.
 
-%---------------------------------------------------------------------------
+Figure with marked ISS keypoints.
 
-\section{Colour description} %ORB}
+In \cite{keypoints-learning}, authors propose a random-forest classifier to be trained for detection of the best interest points for any chosen descriptor.
+
+%Provide complexity, measure time perf (and invariance to transformations?). Can be skipped with uniform.
+
+Descriptor comparison. Take SHOT \cite{SHOT}. Complexity, time perf. Extension with color. \cite{CSHOT}
+
+%----------------------------	-----------------------------------------------
+
+\section{Texture description} %ORB}
 \label{sec:colour} %orb}
 
-matching
+matching \cite{ORB}
 
 %---------------------------------------------------------------------------
 
@@ -32,5 +55,5 @@ geometric consistency, hough
 \section{Alignment}
 \label{sec:alignment}
 
-geometric consistency, hough
+umeyama, ransac
 
