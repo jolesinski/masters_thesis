@@ -21,16 +21,42 @@ There is a multitude of proposals for shape key-point detectors existing in lite
 \Sigma(p,N) = \frac{1}{|N|} \sum\limits_{q\in N}(q -\mu_p)(q - \mu_p)^T,\ \mu_p = \frac{1}{|N|}\sum\limits_{q\in N}q
 \end{equation}
 % originally defined as weighted matrix, need to check how its implemented
-By denoting the eigenvalues of $\Sigma(p, N)$ as $\lambda_1 > \lambda_2 > \lambda_3$, the ISS detector classifies $p$ as a keypoint, if the condition is satisfied
+By denoting the eigenvalues of $\Sigma(p, N)$ as $\lambda_1 > \lambda_2 > \lambda_3$, the ISS detector classifies $p$ as a keypoint, if the following condition is satisfied
 \begin{equation}
 \label{iss}
 \frac{\lambda_2}{\lambda_1} < \epsilon_1 \  \land \  \frac{\lambda_3}{\lambda_2} < \epsilon_2 \ \land \  \lambda_3 > \epsilon_3.
 \end{equation} 
-Thresholds $\epsilon_1$ and $\epsilon_2$ are meant to provide sufficient difference in variations along principal directions, which aids in estimation of a repeatable reference frames for further description stages. The third threshold $\epsilon_3$ ensures that the variations are large enough to consider the point as distinguishable. An example of keypoints detected with ISS is presented on figure \ref{fig:iss}.
+Thresholds $\epsilon_1$ and $\epsilon_2$ are meant to provide sufficient difference between variations along each principal direction, which aids in estimation of a repeatable reference frames for further description stages. The third threshold $\epsilon_3$ ensures that the variations are large enough to consider the point as interesting. A further improvement to the ISS detection criteria is to apply non-maximum suppression over the saliency measure computed at each point. With this edge thinning technique, a point is classified as a keypoint, if it has the largest $l_3$ over its neighbourhood.  An example of keypoints detected with ISS is presented on figure \ref{fig:iss}. The object (cleaning spray in the center of the figure) has marked points in areas of rich shape information, like the bottleneck or the nozzle. It is also visible, that ISS classifies wrong points in two cases. Firstly, when a point lies on a visibility boundary (i.e. the edges of flat surfaces in the figure), thus it should be extended with boundary detection as described in xx. Secondly, when the sensor noise is high (distant wall flat surface in upper left edge of the figure). This issue can be handled by ignoring points above certain z-distance from the sensor or by adaptatively selecting neighbourhood radius for saliency measure.
+%select rich shape object from willow = 13
+%implement hardload and iss, measure avg time
+%implement in cuda
 
-Figure with marked ISS keypoints.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{fig/ISS}
+\caption{ISS keypoints (marked with red) computed with $\epsilon_1 =  \epsilon_2 = 0.75$ and $\epsilon_3 = 0.0005$ }
+\label{fig:iss}
+\end{figure}
 
-In \cite{keypoints-learning}, authors propose a random-forest classifier to be trained for detection of the best interest points for any chosen descriptor.
+The overall time complexity of ISS classification is at the order of $O(nk)$, where $n$ is the image size and $k$ is the max neighbourhood size. This translates into average execution times on target platforms, provided in table \ref{tab:issexec}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r || c | c}
+& NVidia Jetson TK1 & Lenovo Y50-70 \\
+ \hline
+ \hline
+ PCL ISS& 4s & 4s \\
+ PCL ISSBD& 4s &  4s \\
+ CUDA ISS& 4s & 4s \\
+ CUDA ISSBD& 4s & 4s
+\end{tabular}
+\caption{ISS detector time performance statistics.}
+\label{tab:issexec}
+\end{table}
+
+It is important to note, that in practical applications the keypoint detection step is often replaced by volumetric down sampling. About voxel grid. Model is densely grained. This avoids computational costs of keypoint detection, but increases the complexity of further matching and clustering stages. How to choose this tradeoff.
+%In \cite{keypoints-learning}, authors propose a random-forest classifier to be trained for detection of the best interest points for any chosen descriptor.
 
 %Provide complexity, measure time perf (and invariance to transformations?). Can be skipped with uniform.
 
