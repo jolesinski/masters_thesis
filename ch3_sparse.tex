@@ -40,6 +40,13 @@ Thresholds $\epsilon_1$ and $\epsilon_2$ are meant to provide sufficient differe
 
 The overall time complexity of ISS classification is at the order of $O(nk)$, where $n$ is the image size and $k$ is the max neighbourhood size. This translates into average execution times on target platforms, provided in table \ref{tab:issexec}.
 
+\textit{the ISS method with boundary point re-
+moval (ISS-BR) was used to detect the keypoints in the
+scene and the models. As reported in (Salti et al, 2012),
+ISS achieves the best performance compared to other
+keypoint detectors when used in conjunction with fea-
+ture descriptors.}
+
 \begin{table}[h]
 \centering
 \begin{tabular}{r || c | c}
@@ -60,22 +67,89 @@ It is important to note, that in practical applications the keypoint detection s
 
 %Provide complexity, measure time perf (and invariance to transformations?). Can be skipped with uniform.
 
-A comprehensive descriptors comparison can be found in \cite{descriptorsComparison}.
-Take SHOT \cite{SHOT}. Complexity, time perf. Extension with color. \cite{CSHOT} Performance extension in binarized form \cite{BSHOT}.
+%A descriptor is considered to be reliable if it is able to capture the same surface characteristics, regardless of rigid transformations, varying sampling density and noise.
+
+Similarly to keypoint detection methods, the literature also abounds with different keypoint description proposals. A comprehensive comparison of the most common methods can be found in \cite{descriptorsComparison}. The \textit{Fast Point Feature Histograms} (FPFH) \cite{FPFH, FPFH2} and \textit{Signature of Histograms of OrienTations} (SHOT) \cite{SHOT} descriptors are particularly interesting for the purposes of this work, given the real-time execution assumptions.
+
+
+FPFH represents the relative orientation of normal vectors between the query point $p$ and each of its neighbours $q \in N$. For each point pair $(p, q)$, a new coordinate frame $u,v,w$ originating at $p$ is constructed as
+\begin{equation}
+u = n,\  v = n \times \frac{p-q}{\|p-q\|_2},\  w = u \times v,
+\end{equation}
+where $n$ is the normal vector at $p$ and $d = \|p-q\|_2$ is the Euclidean distance. Using this reference frame, the difference between normals at $p$ and $q$ is expressed by the angular features
+\begin{equation}
+\alpha = v \cdot n, \  \phi = u \cdot \frac{(p-q)}{\|p-q\|_2}, \ \theta = \arctan(w\cdot n, u \cdot n).
+\label{eq:fpfhangulars}
+\end{equation}
+The angular features are further binned into a histogram $H$, typically dividing them into $5$ subdivisions, which leads to $3^5=125$ bins. Such histograms are computed every point in the input point cloud. Finally, the FPFH descriptor is formed as
+\begin{equation}
+FPFH(p) = H(p) + \frac{1}{|N(p)|}\sum\limits_{q\in N(p)}\frac{1}{ \|p-q\|_2}H(q).
+\end{equation}
+The FPFH descriptor computational complexity is $O(nk)$.
+
+
+The SHOT proposal emphasises the importance of defining a unique and unambiguous local coordinate system, namely the \textit{Local Reference Frame} (LRF), as a basis for a comparable descriptor construction. A modified version of support covariance matrix (as defined in eq. \ref{eq:scatter}) is introduced, where each neighbour is weighted by its proximity to the query point: 
+\begin{equation}
+\label{eq:weighCov}
+M(p) = \frac{1}{\sum\limits_{q\in N(p)}(r - \|p-q\|_2)} \sum\limits_{q\in N(p)}(r - \|p-q\|_2)(p - q)(p - q)^T.
+\end{equation}
+The authors determine the LRF coordinate system axes, $x$, $y$ and $z$ with the corresponding eigenvectors of $M$, $e_x$, $e_y$ and $e_z$ in decreasing eigenvalue order. The sign of the axes is disambiguated by aligning the orientation of $x$ and $z$ axes with the majority of vectors they are representing. Concretely, the signed $x$ axis is given by the formula
+\begin{equation}
+x(p) = \begin{cases}\ e_x, & \mbox{if } \sum\limits_{q \in N(p)} \operatorname{sign}\left( (p-q)^T \cdot x \right) \geq 0 \\ -e_x, & \mbox{otherwise} \end{cases}.
+\end{equation}
+The $z$ axis sign is determined analogically and $y$ is a cross product of the former, $y = z \times x$. The authors have proven experimentally a high repeatability of such LRF, even in presence of noise and clutter. The support is further divided with a spherical grid of 2 radial, 2 elevation and 8 azimuth divisions, as depicted on figure \ref{fig:shotgrid} (for better visibility, only half of azmiuth partitions are shown), resulting in 32 cells total.  For each cell, the cosine of the angles $\theta_q$ between the normal at the query point $n_p$ and each normal at cell points $n_q$ are binned to form a histogram. Uniform binning of the cosine function provides robustness to LRF perturbations, as it leads to coarser angle binning for normals close to the $z$ axis. Another problem, called \textit{boundary effect}, arises due to the rough division of the support volume. Depending on the inaccuracies in LRF estimation, points that are close to the boundaries between neighbouring cells are not repeatably accounted to the same histogram. To avoid this problem, the authors propose to interpolate the neighbouring bins to spread the counts among them. After this step, the local histograms are being normalized by their $L_2$ norms, to account for varying point densities. Finally, the SHOT descriptor is composed by concatenating the local histograms, each with typically of 11 bins, resulting in 352 element descriptor.
+
+\usetikzlibrary{3d}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[scale=2]
+   \begin{scope}[x={(330:1cm)},y={(210:1cm)},z={(90:1cm)}]
+    \begin{scope}[canvas is zy plane at x=0]
+     \draw (135:1cm) arc (135:-45:1cm);
+     \draw[dashed] (135:1cm) arc (135:315:1cm);  
+     \draw (135:0.5cm) arc (135:-45:0.5cm);
+     \draw[dashed] (135:0.5cm) arc (135:315:0.5cm);   
+    \end{scope}
+    \begin{scope}[canvas is zx plane at y=0]
+     \draw (135:1cm) arc (135:-45:1cm);
+     \draw[dashed] (135:1cm) arc (135:315:1cm);
+     \draw (135:0.5cm) arc (135:-45:0.5cm);
+     \draw[dashed] (135:0.5cm) arc (135:315:0.5cm);   
+    \end{scope}
+    \draw[->] (0,0,-1.15) -- (0,0,1.15);
+    \draw[->] (0,-1.15,0) -- (0,1.15,0);
+    \draw[->] (-1.15,0,0) -- (1.15,0,0);
+   \end{scope};
+   \draw (-1.23,0) arc (180:360:1.23cm and 0.7cm);
+   \draw[dashed] (-1.23,0) arc (180:0:1.23cm and 0.7cm);
+   \draw (-0.61,0) arc (180:360:0.61cm and 0.24cm);
+   \draw[dashed] (-0.61,0) arc (180:0:0.61cm and 0.24cm);
+
+   \shade[ball color=blue!10!white,opacity=0.20] (0,0) circle (1.23cm);
+   \shade[ball color=blue!50!white,opacity=0.20] (0,0) circle (0.61cm);
+\end{tikzpicture}
+\caption{SHOT descriptor spherical grid}
+\label{fig:shotgrid}
+\end{figure}
+
+%Signatures vs histograms. About SHOT. Complexity, time perf.
+Extension with color. \cite{CSHOT}. Performance extension in binarized form \cite{BSHOT}.
 
 %----------------------------	-----------------------------------------------
 
 \section{Texture description} %ORB}
 \label{sec:colour} %orb}
 
-matching \cite{ORB}
+ORB \cite{ORB}
 
 %---------------------------------------------------------------------------
 
 \section{Clustering}
 \label{sec:clustering}
 
-geometric consistency, hough
+Matching.
+brute force, geometric consistency, hough
 
 %---------------------------------------------------------------------------
 
