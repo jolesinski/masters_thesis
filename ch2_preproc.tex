@@ -50,24 +50,57 @@ The other type is \textit{k-neighbourhood}, a set of $k$ nearest points in the s
 From computational point of view, a point cloud that is directly converted from RGB-D image can be internally stored in a two dimensional array of points, with elements corresponding to image pixels. Point clouds with such data arrangement are commonly referred to as \textit{organized}. Image-like ordering is beneficial, because it reflects the spatial distribution of points directly into memory.
 
 
-
+Also known as support.
 Organized neighbourhoods.
 KD-tree.
 Flann.
-
-Boundary estimation
+\textit{“scale” corresponds to the “support radius” (TombariA et al, 2013)}
 %---------------------------------------------------------------------------
+
+\section{Surface normals}
+\label{sec:normals}
+
+Many of the algorithms used further during the analysis of a point cloud base on the notion of a surface normal, known from the 3D geometry. These vectors are also widely used for shading in 3D computer graphics and a variety of methods have already been developed to solve the surface normal estimation problem. One of the simplest uses the least-squares plane fitting to estimate the normal to a plane tangent to the surface, which approximates the desired vector \cite{rusuthesis}. More specifically, for a given point on the surface, it's $k$-neighbourhood centroid $\bar{p}$ is calculated as:
+\begin{equation} 
+\bar{p} = \frac{1}{k} \cdot \sum\limits_{i=1}^{k} p_i 
+\end{equation}
+The tangent plane is thereafter defined by the centroid $\bar{p}$ and the sought normal vector $\vec{n}$. The latter is computed by minimizing the total distance from every k-neighbour $p_i$ to the tangent plane, given by $\sum\limits_{i=1}^{k} (p_i - \bar{p})\cdot \vec{n}$. The minimization problem can be solved by utilizing the covariance matrix $C \in \mathbb{R}^{3x3}$, given by:
+\begin{equation}
+C = \frac{1}{k-1}\sum\limits_{i=1}^{k}(p_i - \bar{p})\cdot (p_i - \bar{p})^\intercal
+\end{equation}
+The covariance matrix $C$ is symmetric, positive semi-definite and possess three real eigenvalues $\lambda_j \geq 0, i = 1,2,3$. The eigenvector corresponding to the smallest eigenvalue is an approximation of the desired normal vector $\vec{n}$, disregarding the sign. Furthermore, if the viewpoint $v_p$ is known, the normal $\vec{n}$ has to be oriented towards  $v_p$, which means that it has to satisfy the condition:
+\begin{equation}
+\vec{n}\cdot(v_p-p_i) > 0
+\end{equation}
+
+
+Processing time. Cuda implementation. Complete solution used \cite{eigenvalues3x3}.
+
+Example PCD with normals:
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{fig/Normal}
+\caption{ Normals }
+\label{fig:normals}
+\end{figure}
 
 \section{Noise filtering}
 \label{sec:noise}
 
 Types of noise, frequency response, low pass filtering, nonlinear filtering
 
+Boundary estimation
+
+Occlusion and clutter from Guo
+
+One of the most important stages of data preprocessing is the filtration. Probably the most basic point cloud filter is the pass-through filter, which reject all points outside a given range along a specified dimension. This procedure allows to focus the analysis process on the region of interest, i.e. the reachable workspace of a manipulator. Apart from limiting the cloud dimensions, the number of data points can be also reduced by downsampling. The voxel grid filter is typically used for this purpose. This filter creates a three dimensional regular grid over the input point cloud data and then, in each voxel, approximates all the present data points with their centroid. Such reduction is particularly useful when large point cloud datasets have to be processed online with limited computing resources. Finally, the filtration process has to cope with numerous measurement errors present in the raw data acquired from the 3D camera. Such measurement noise 
+manifests itself in the form of sparse outliers, which corrupt the results of further processing, i.e. the surface normals estimation. The impact of those irregularities can by reduced by applying an outlier removal filter. The simplest form of such filter rejects all the data points which does not have enough neighbours within a specified radius. A more refined version is based on the neighbouring points distance distribution. Firstly, the mean distance from each point to all its neighbours is calculated. Next, based on the assumption that the resulting distribution is Gaussian, all the points whose mean distances lay outside of an interval defined by the global distances mean and their standard deviation are rejected from the dataset. The effects of statistical outlier removal are presented in the Figure \ref{fig:outlierremoval}.
+
 %---------------------------------------------------------------------------
 
 \section{Segmentation}
 \label{sec:segmentation}
 
-segmentation
+The point cloud segmentation or cluster extraction is the process of grouping together data points that meet some common condition of similarity. Ideally, each of such segmented clusters represents a different object in the scene. A popular segmentation method is based on the euclidean distance. In this approach, two points are considered to belong to the same cluster, if their relative distance is less than a selected threshold. This process is similar to the flood-fill algorithm, popular in the 2D image processing. There are also other varieties of segmentation, i.e. based on the smoothness constraint or colour similarity.
 
 %---------------------------------------------------------------------------
