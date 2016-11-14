@@ -81,7 +81,7 @@ where $n$ is the normal vector at $p$ and $d = \|p-q\|_2$ is the Euclidean dista
 \alpha = v \cdot n, \  \phi = u \cdot \frac{(p-q)}{\|p-q\|_2}, \ \theta = \arctan(w\cdot n, u \cdot n).
 \label{eq:fpfhangulars}
 \end{equation}
-The angular features are further binned into a histogram $H$, typically dividing them into $5$ subdivisions, which leads to $3^5=125$ bins. Such histograms are computed every point in the input point cloud. Finally, the FPFH descriptor is formed as
+The angular features are further binned into a histogram $H$, typically dividing them into $5$ subdivisions, which leads to $3^5=125$ bins. WRONG! FPFHs are decorrelated, 11binned = 33bins. Such histograms are computed every point in the input point cloud. Finally, the FPFH descriptor is formed as
 \begin{equation}
 FPFH(p) = H(p) + \frac{1}{|N(p)|}\sum\limits_{q\in N(p)}\frac{1}{ \|p-q\|_2}H(q).
 \end{equation}
@@ -141,7 +141,22 @@ Extension with color. \cite{CSHOT}. Performance extension in binarized form \cit
 \section{Texture description} %ORB}
 \label{sec:colour} %orb}
 
-ORB \cite{ORB}
+%TODO
+% - add model2views conversion to ros_recognizer
+% - test SIFT, SURF and ORB with different RGB2GREY, opponent color
+% - 
+
+SIFT, successful, most widely used \cite{SIFT}.
+
+SURF, proposed for more efficiency \cite{SURF}.
+
+ORB \cite{ORB}.
+
+All designed for grey images, RGB2GREY \cite{RGB2GREY}.
+
+Color spaces and opponent color \cite{ColorComparison}.
+
+Color attributes \cite{ColorAttributes}
 
 %---------------------------------------------------------------------------
 
@@ -156,5 +171,7 @@ brute force, geometric consistency, hough
 \section{Alignment}
 \label{sec:alignment}
 
-umeyama, ransac
+
+
+umeyama \cite{umeyama}, ransac
 
