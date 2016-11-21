@@ -146,11 +146,20 @@ Extension with color. \cite{CSHOT}. Performance extension in binarized form \cit
 % - test SIFT, SURF and ORB with different RGB2GREY, opponent color
 % - 
 
+In addition to the spatial information contained in RGB-D images, an important and discriminative function is also performed by the description of texture. Although there are descriptor proposals in literature that combine both information cues, the best performance is achieved when color is analysed independently of shape. This benefits in further matching phase, where descriptors of smaller sizes can be compared in the same information domain and there are overall more keypoints for grouping and generating pose hypotheses.
+
+As compared to shape, the texture descriptors are more broadly studied and developed field. A common technique shared among these methods is the \textit{scale pyramid}.
+
+image of the scale pyramid
+
 SIFT, successful, most widely used \cite{SIFT}.
 
 SURF, proposed for more efficiency \cite{SURF}.
 
-ORB \cite{ORB}.
+\textit{Oriented FAST and Rotated BRIEF} (ORB) \cite{ORB} is a particularly interesting proposal, because of its real-time capabilities. As the name suggests, it is an enhancement to a two former concepts, the\textit{ Features from Accelerated Segment Test} (FAST) \cite{FAST} keypoint detector and the \textit{Binary Robust Independent
+Elementary Features} (BRIEF) \cite{BRIEF} descriptor.
+
+AKAZE \cite{AKAZE}.
 
 All designed for grey images, RGB2GREY \cite{RGB2GREY}.
 
