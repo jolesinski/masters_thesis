@@ -4,6 +4,8 @@
 \chapter{Sparse feature matching}
 \label{cha:feature}
 
+% Good intro can be found in Wikipedia SIFT
+
 Solutions to problem stated in section \ref{sec:problem} are commonly divided \cite{something} into feature-based and template-based. The former approach, also referred to as local matching, is focused on comparing point neighbourhoods between the scene and model datasets. 
 
 The solution in such methods is composed of several steps. Firstly, an input subset with elements of rich and distinguishable neighbourhood information is selected. Points that belong to this subset are referred to as \textit{keypoints}. For each keypoint, its neighbourhood information is expressed in the form of a \textit{descriptor} vector. By the means of selected metric, commonly the $L_2$ norm, descriptors are further compared between the scene and model datasets, to find \textit{correspondences} with minimal distance. Such point pairs are then grouped to share similar geometric constrains and finally, the largest clusters are used to calculate affine transformation, which renders the initial problem solution.
@@ -101,7 +103,7 @@ The $z$ axis sign is determined analogically and $y$ is a cross product of the f
 
 \usetikzlibrary{3d}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \begin{tikzpicture}[scale=2]
    \begin{scope}[x={(330:1cm)},y={(210:1cm)},z={(90:1cm)}]
@@ -146,13 +148,15 @@ Extension with color. \cite{CSHOT}. Performance extension in binarized form \cit
 % - test SIFT, SURF and ORB with different RGB2GREY, opponent color
 % - 
 
-In addition to the spatial information contained in RGB-D images, an important and discriminative function is also performed by the description of texture. Although there are descriptor proposals in literature that combine both information cues, the best performance is achieved when color is analysed independently of shape. This benefits in further matching phase, where descriptors of smaller sizes can be compared in the same information domain and there are overall more keypoints for grouping and generating pose hypotheses.
+In addition to the spatial information contained in RGB-D images, an important and discriminative function is also performed by the description of texture. Although there are descriptor proposals in literature that combine both information cues \cite{CSHOT, RGBFPFH}, the best performance is achieved when color is analyzed independently of shape. The benefits are in further matching phase, where descriptors of smaller sizes are compared in the same information domain and there are overall more keypoints for grouping and generating pose hypotheses.
 
-As compared to shape, the texture descriptors are more broadly studied and developed field. A common technique shared among these methods is the \textit{scale pyramid}.
+In comparison to shape, texture descriptors are more broadly studiend and developed field. A significant interest in this area was aided by numerous successful applications \cite{ORB} of the \textit{Scale-invariant Feature Transform} (SIFT) \cite{SIFT}.
+
+Take description from Scholarpedia SIFT
+
+A common technique shared among these methods is the \textit{scale pyramid}.
 
 image of the scale pyramid
-
-SIFT, successful, most widely used \cite{SIFT}.
 
 SURF, proposed for more efficiency \cite{SURF}.
 
