@@ -148,17 +148,39 @@ Extension with color. \cite{CSHOT}. Performance extension in binarized form \cit
 % - test SIFT, SURF and ORB with different RGB2GREY, opponent color
 % - 
 
-In addition to the spatial information contained in RGB-D images, an important and discriminative function is also performed by the description of texture. Although there are descriptor proposals in literature that combine both information cues \cite{CSHOT, RGBFPFH}, the best performance is achieved when color is analyzed independently of shape. The benefits are in further matching phase, where descriptors of smaller sizes are compared in the same information domain and there are overall more keypoints for grouping and generating pose hypotheses.
+In addition to the spatial information contained in RGB-D images, an important and discriminative function is performed by the description of texture. Although there are descriptor proposals in literature that combine both modalities \cite{CSHOT, RGBFPFH}, the best matching performance is achieved when color variation is analyzed independently of shape. This is because the key characteristic points typically do not overlap between modalities and separating them benefits in further matching phase, where descriptors of smaller sizes are compared in the same information domain, with overall more keypoints for grouping and generating pose hypotheses.
 
-In comparison to shape, texture descriptors are more broadly studiend and developed field. A significant interest in this area was aided by numerous successful applications \cite{ORB} of the \textit{Scale-invariant Feature Transform} (SIFT) \cite{SIFT}.
+In comparison to shape, texture descriptors are more broadly studiend and developed field. A significant interest in this area was aided by numerous successful applications \cite{ORB} of the \textit{Scale-invariant Feature Transform} (SIFT) \cite{SIFT}, which defines methods for both interest-point selection and feature description. To achieve scale invariance, SIFT introduces a scale-space, defined as a convolution
+\begin{equation}
+L(x,y,\sigma) = G(x,y,\sigma) \ast I(x,y),
+\end{equation}
+where $I(x,y)$ is the input image and $G(x,y,\sigma) = \frac{1}{2\pi\sigma^2}e^{-(x^2 + y^2)/2\sigma^2}$ is a Gaussian function with a scale parameter $\sigma$. Keypoint detection is further based on finding extrema of a \textit{Difference of Gaussian} (DoG) function, given as
+\begin{equation}
+DoG(x,y,s) = L(x,y,s + \Delta s) - L(x,y,s)
+\end{equation}
+To account for for strong responses along the edges, DoG extrema are suppressed by a Hessian criterion
+\begin{equation}
+\frac{\det H}{(\mathrm{trace} H)^2} \geq \frac{r}{(r+1)^2},\ H = \begin{bmatrix}
+L_{xx} & L_{xy} \\
+L_{yx} & L_{yy} 
+\end{bmatrix},
+\end{equation}
+where $r \geq 1$ is the upper limit imposed on the ratio between largest and the smallest eigenvalues of $H$ \cite{SiftScholarpedia}. An example of a SIFT detected keypoints is presented in fig. \ref{fig:sift}.
 
-Take description from Scholarpedia SIFT
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\textwidth]{fig/ISS}
+\caption{SIFT keypoints marked with circles. Scale is represented by circle radius}
+\label{fig:sift}
+\end{figure}
 
-A common technique shared among these methods is the \textit{scale pyramid}.
+Each selected interest point has a corresponding scale parameter, that is used in further description phase of SIFT to determine the neighbourhood size and achieve scale invariance. The SIFT descriptor has also a ratotational invariance property, which means that rotating the keypoint neighbourhood does not change the descriptor values. Such invariance is achieved by assigning an \textit{dominant orientation} parameter to each keypoint. Gradient directions, computed from gradient vectors $\Delta L(x,y,s)$ in scaled keypoint neighbourhood are accumulated in a 36-binned histogram. Maximum peak of such histogram renders the dominant orientation.
 
-image of the scale pyramid
+To form the SIFT descriptor, a 4x4 rectangular grid aligned to the dominant orientation is applied on the keypoint neighbourhood. In each cell, an 8-binned histogram of gradient orientations, also aligned to the dominant direction is computed. The histogram inputs for each gradient are weighted by its magnitude. Histograms for each cell are further concatenated into a single descriptor, which renders 128 dimensions. The final descriptor is normalized to unit sum, to be robust against illumination variations.
 
-SURF, proposed for more efficiency \cite{SURF}.
+TODO: add grid visualization
+
+The \textit{V4R} framework bases its recognition performance on the SIFT descriptor discriminative properties. Concretely, it uses the GPU-accelerated implementation, proposed by \cite{SIFTGPU}. The SIFT, however, is a patented solution \cite{SIFT-PATENT} that requires licence fees for commercial applications. Moreover, its 128 floating point descriptor is costly in both computing and matching phases, even with GPU paralellization. There are several alternatives to SIFT that overcome this drawbacks. This work attempts to extend the V4R framework and evaluate the performance of selected SIFT alternatives.
 
 \textit{Oriented FAST and Rotated BRIEF} (ORB) \cite{ORB} is a particularly interesting proposal, because of its real-time capabilities. As the name suggests, it is an enhancement to a two former concepts, the\textit{ Features from Accelerated Segment Test} (FAST) \cite{FAST} keypoint detector and the \textit{Binary Robust Independent
 Elementary Features} (BRIEF) \cite{BRIEF} descriptor.
