@@ -141,7 +141,7 @@ Extension with color. \cite{CSHOT}. Performance extension in binarized form \cit
 %----------------------------	-----------------------------------------------
 
 \section{Texture description} %ORB}
-\label{sec:colour} %orb}
+\label{sec:color} %orb}
 
 %TODO
 % - add model2views conversion to ros_recognizer
@@ -150,9 +150,10 @@ Extension with color. \cite{CSHOT}. Performance extension in binarized form \cit
 
 In addition to the spatial information contained in RGB-D images, an important and discriminative function is performed by the description of texture. Although there are descriptor proposals in literature that combine both modalities \cite{CSHOT, RGBFPFH}, the best matching performance is achieved when color variation is analyzed independently of shape. This is because the key characteristic points typically do not overlap between modalities and separating them benefits in further matching phase, where descriptors of smaller sizes are compared in the same information domain, with overall more keypoints for grouping and generating pose hypotheses.
 
-In comparison to shape, texture descriptors are more broadly studiend and developed field. A significant interest in this area was aided by numerous successful applications \cite{ORB} of the \textit{Scale-invariant Feature Transform} (SIFT) \cite{SIFT}, which defines methods for both interest-point selection and feature description. To achieve scale invariance, SIFT introduces a scale-space, defined as a convolution
+In comparison to shape, texture descriptors are more broadly studiend and developed field. A significant interest in this area was aided by numerous successful applications \cite{ORB} of the \textit{Scale-invariant Feature Transform} (SIFT) \cite{SIFT}, which defines methods for both interest-point selection and feature description. To achieve scale invariance, SIFT introduces a linear scale-space, defined as a convolution
 \begin{equation}
 L(x,y,\sigma) = G(x,y,\sigma) \ast I(x,y),
+\label{eq:scalelinear}
 \end{equation}
 where $I(x,y)$ is the input image and $G(x,y,\sigma) = \frac{1}{2\pi\sigma^2}e^{-(x^2 + y^2)/2\sigma^2}$ is a Gaussian function with a scale parameter $\sigma$. Keypoint detection is further based on finding extrema of a \textit{Difference of Gaussian} (DoG) function, given as
 \begin{equation}
@@ -174,7 +175,7 @@ where $r \geq 1$ is the upper limit imposed on the ratio between largest and the
 \label{fig:sift}
 \end{figure}
 
-Each selected interest point has a corresponding scale parameter, that is used in further description phase of SIFT to determine the neighbourhood size and achieve scale invariance. The SIFT descriptor has also a ratotational invariance property, which means that rotating the keypoint neighbourhood does not change the descriptor values. Such invariance is achieved by assigning an \textit{dominant orientation} parameter to each keypoint. Gradient directions, computed from gradient vectors $\Delta L(x,y,s)$ in scaled keypoint neighbourhood are accumulated in a 36-binned histogram. Maximum peak of such histogram renders the dominant orientation.
+Each selected interest point has a corresponding scale parameter, that is used in further description phase of SIFT to determine the neighbourhood size and achieve scale invariance. The SIFT descriptor has also a ratotational invariance property, which means that rotating the neighbourhood of a query point does not change its descriptor vector. Such invariance is achieved by assigning an \textit{dominant orientation} parameter to each keypoint. Gradient directions, computed from gradient vectors $\Delta L(x,y,s)$ in scaled keypoint neighbourhood are accumulated in a 36-binned histogram. Maximum peak of such histogram renders the dominant orientation.
 
 To form the SIFT descriptor, a 4x4 rectangular grid aligned to the dominant orientation is applied on the keypoint neighbourhood. In each cell, an 8-binned histogram of gradient orientations, also aligned to the dominant direction is computed. The histogram inputs for each gradient are weighted by its magnitude. Histograms for each cell are further concatenated into a single descriptor, which renders 128 dimensions. The final descriptor is normalized to unit sum, to be robust against illumination variations.
 
@@ -185,21 +186,53 @@ The \textit{V4R} framework bases its recognition performance on the SIFT descrip
 \textit{Oriented FAST and Rotated BRIEF} (ORB) \cite{ORB} is a particularly interesting proposal, because of its real-time capabilities. As the name suggests, it is an enhancement to a two former concepts, the\textit{ Features from Accelerated Segment Test} (FAST) \cite{FAST} keypoint detector and the \textit{Binary Robust Independent
 Elementary Features} (BRIEF) \cite{BRIEF} descriptor.
 
-AKAZE \cite{AKAZE}.
+FAST detector analyses a circle of 16 pixels around the query point and classifies it as a corner, if there are $n$ contiguous pixels with all darker or all brighter intensity by a given threshold. To boost the efficiency of computation, a decision tree is optimized to for the classification task. The authors reported, that $n = 9$ contiguous pixels achieved the best repeatability in the their tests. In ORB, FAST keypoints are ehanced to achieve scale and rotation invariance. Detection is performed across a scale pyramid and an orientation component is introduced, by computing a weighted intensity centroid of the query neighbourhood patch. 
 
-All designed for grey images, RGB2GREY \cite{RGB2GREY}.
+BRIEF descriptor is designed to minimize the CPU and memory footprint. It is defined over an image patch intensity $I_p$ as
+\begin{equation}
+\mathrm{BRIEF}(I_p) = \sum \limits_{0\leq i < n}2^i\cdot \tau(I(p_i), I(q_i)),\ \tau(x, y) = \begin{cases} 1, & \mbox{if } x < y \\ 0, & \mbox{otherwise} \end{cases}
+\end{equation}
+where $p_i$, $q_i$ are selected pixel coordinates within the patch, $\tau$ is an intensity test and $n$ is the bitstring size. The authors have experimentally proven that $n=256$ yields an effective compromise between the discriminative performace, computation speed and memory efficiency. Given an image patch of size $S\times S$, the pixel coordinate test pairs $(p_i, q_i)$ are randomly taken from a Gaussian distribution, with $0.04\cdot S^2$ variance for the first pixel location and $0.01\cdot S^2$ for the second. Due to the fact, that $\tau$ compares intensities of single pixels, the image patch has to be smoothened before computing the descriptor to reduce the noise. Gaussian kernel of size $9\times 9$ and variance of 2 was selected to for this task. ORB has different smoothing. They rotate, compute lookup, train uncorrelated with greedy-search.
 
-Color spaces and opponent color \cite{ColorComparison}.
+Similarily to ORB, the \textit{AKAZE} \cite{AKAZE} descriptor is also designed for real-time efficiency. The main characteristic which distinguishes it from the formerly introduced SIFT and ORB, is the non-linear scale space. Despite the strong analytical foundations and wide area of applications for the linear scale theory, its main disadvantage in the context of object recognition, is the fact that it does not preserve edges. Object boundaries and texture characteristics are blurred, which may lead to imprecise matching. The key idea behind AKAZE is to make filtering in the scale pyramid adaptive to local intensity variations and thus preserve the edges in the image. A comparison between the subsequent images of a linear and non-linear scale pyramids is shown in the figure \ref{fig:scalepyramids}
 
-Color attributes \cite{ColorAttributes}
+Gaussian scale space given in equation \ref{eq:scalelinear} can be derived as a solution to a diffusion equation
+\begin{equation}
+\partial_s L = \frac{1}{2}\nabla^2L
+\end{equation}
+with initial condition $L(x,y,0) = I(x,y)$. This approach is generalized to define a non-linear scale space, as a solution to an anizotropic diffusion equation
+\begin{equation}
+\partial_s L = \mathrm{div}\left( c(x,y,s) \nabla L \right) = \nabla c \cdot \nabla L + c(x,y,s)\nabla^2L.
+\label{eq:nonlindiffusion}
+\end{equation}
+The \textit{conductivity} function $c$ is designed to achieve the adaptive filtering. The AKAZE authors suggest a function that promotes wider image regions and has the form of
+\begin{equation}
+c(x,y,s) = \frac{1}{1 + \frac{|\nabla L_{\sigma}|^2}{\lambda^2}},
+\end{equation}
+where $L_\sigma$ is a gaussian smoothed image luminance and $\lambda$ is a contrast factor, that controls the level of diffusion. AKAZE uses \textit{Fast Explicit Diffusion} algorithm to find an approximate solution to equation \ref{eq:nonlindiffusion} and form the scale pyramid of $O$ octaves and $S$ sublevels. Keypoint detection is further based on finding local maxima of Hessian determinant at each pyramid level. Finally, the \textit{Modified-Local Difference Binary} (M-LDB) descriptor is introduced to represent the local image structure around the keypoint. It is similiar to the previously descibed BRIEF descriptor, in a way that it divides the keypoint neighbourhood into a grid and performs a series of comparisons among the cells to form a binary vector. Hovewer, instead of direct comparison of intensities at each pixel, it performs 3 binary tests over average intensity and the mean horzontal and vertical derivatives. How many bits final ?
+
+It is important to note, that all of the algorithms presented so far in this section operate over greyscale images. The loss of information caused by dimensionality reduction of the RGB color space can lead to performance degradation of the recognition system. In \cite{RGB2GREY}, the authors compare 13 different methods for RGB to gray conversion and conclude the superiority of simple channel-wise average over i.e. using intenisites form other color spaces, like HSV or CIELAB. Color employment for object detection is thoroughly evaluated in \cite{ColorComparison}. The authors have compared results of image classification with SIFT descriptor computed independently over each channel of different color spaces and yield \textit{Opponent-SIFT} and \textit{W-SIFT} as the leading approaches. The first method is based on the biologically inspired \textit{oppoonent} color space, transformed from RGB channels by
+\begin{equation}
+O_1 = \frac{R - G}{\sqrt{2}},\ O_2 = \frac{R + G - 2B}{\sqrt{6}},\ O_3 = \frac{R + G + B}{\sqrt{3}}.
+\end{equation}
+The latter approach enhances opponent space by removing influence of light intensity from color channels, defining the invariants as $\frac{O_1}{O_3}$ and $\frac{O_2}{O_3}$. Computing and matching image descriptors on each color channel increases the computational demands, but can be beneficial from recognition rate point of view. The profits of using this approach will be evaluated further in this chapter. Average computation times on target platforms are provided in table \ref{tab:opponent}. Tested implementation from OpenCV with modifications for multithreading.
 
 %---------------------------------------------------------------------------
 
 \section{Clustering}
 \label{sec:clustering}
 
-Matching.
-brute force, geometric consistency, hough
+Once the input image is described in a comparable manner with the model, a relationship can be set between the input and model keypoints. This is done by the means of a selected distance metric $d$ and a condition (typically a threshold $\tau$ on the distance) to accept input image descriptor nearest neighbours in model as matches. A set of point pairs is formed this way, from which the object pose is further inferred.
+
+From performance perspective, it is important to note that simply comparing all the features to find all possible matches between images is a quadratic operation in the number of selected keypoints. In real-time applications, this approach, namely \textit{bute-force} matching, is unfeasible for high dimensional feature vectors like SHOT or SIFT. An efficient alternative is to employ an indexing structure \cite{szeliski}, in example a hash-table or a Kd-tree (as described in \ref{sec:neighbourhood}). Search trees are comprehensively evaluated for this purpose in \cite{flann} and the multiple randomized Kd-trees are concluded to achieve the best performance.
+
+Despite the complexity optimizations of nearest neighbour search for real valued descriptors, they are still outperformed by binary descriptors, even with brute-force approach (see table XX). This is because computing the distance metric, i.e. the $L_2$ metric, is far more demanding than applying Hamming distance to binary featurs. The former requires costly floating point operations, whilst the Hamming distance is computed only with a XOR and a bitcount, which is highly optimized on modern computing architectures with SSE instructions \cite{ORB}. Furthermore, in \cite{binaryFlann}, the authors propose a search tree specifically designed for binary features, which further boosts the matching performance. Experimental results on the matching performance are provided in table XX.
+
+computation
+
+Given set of matches need to group those that yield the same object pose
+geometric consistency \cite{geometricConsistency}, hough \cite{hough}
+
 
 %---------------------------------------------------------------------------
 
