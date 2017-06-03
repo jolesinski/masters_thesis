@@ -4,12 +4,14 @@
 \chapter{Post-processing}
 \label{cha:postproc}
 
+As a result of all the recognition pipelines described in previous chapters, a set of object instance candidates is established, represented by the estimates of model pose in the scene. Given an object location, further processing steps are possible to enhance the estimate accuracy and validate its correctness.
+
 %---------------------------------------------------------------------------
 
 \section{Pose refinement}
 \label{sec:icp}
 
-icp
+One of the most popular techniques for optimizing a coarse alignment between two point clouds is the \textit{Iterative Closest Point} algorithm family, originally introduced in \cite{icp-origin}. In its basic form, the ICP algorithm iterates with two steps: computing correspondences and updating the transformation. Starting with an initial pose estimate $T_0$, at each iteration $i$, each model point $p_j$ is matched to its scene nearest-neighbor $s_k$, resulting in a correspondence pair $c_j = (p_j, \mathrm{argmin}_{s_k} \lVert T_i p_j - s_k \rVert_2 )$.
 
 %---------------------------------------------------------------------------
 

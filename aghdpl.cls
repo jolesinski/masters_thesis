@@ -121,7 +121,7 @@ Supervisor: & {\itshape \@supervisor}\\
 
 \vspace*{17mm}
 
-\centerline{\small\sffamily Krak\'{o}w, 2016}
+\centerline{\small\sffamily Krak\'{o}w, 2017}
 
 \clearpage 
 \thispagestyle{empty} 
@@ -167,7 +167,7 @@ Supervisor: & {\itshape \@supervisor}\\
 
 \vspace*{17mm}
 
-\centerline{\small\sffamily Krak\'{o}w, 2016}
+\centerline{\small\sffamily Krak\'{o}w, 2017}
 
 
 \clearpage \titlepage

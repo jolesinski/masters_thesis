@@ -215,31 +215,62 @@ It is important to note, that all of the algorithms presented so far in this sec
 \begin{equation}
 O_1 = \frac{R - G}{\sqrt{2}},\ O_2 = \frac{R + G - 2B}{\sqrt{6}},\ O_3 = \frac{R + G + B}{\sqrt{3}}.
 \end{equation}
-The latter approach enhances opponent space by removing influence of light intensity from color channels, defining the invariants as $\frac{O_1}{O_3}$ and $\frac{O_2}{O_3}$. Computing and matching image descriptors on each color channel increases the computational demands, but can be beneficial from recognition rate point of view. The profits of using this approach will be evaluated further in this chapter. Average computation times on target platforms are provided in table \ref{tab:opponent}. Tested implementation from OpenCV with modifications for multithreading.
+The latter approach enhances opponent space by removing influence of light intensity from color channels, defining the invariants as $\frac{O_1}{O_3}$ and $\frac{O_2}{O_3}$. Computing and matching image descriptors on each color channel increases the computational demands, but can be beneficial from recognition rate point of view. The profits of using this approach will be evaluated further in this chapter. Average computation times on target platforms are provided in table \ref{tab:opponent}. Tested implementation from OpenCV with modifications for
+%---------------------------------------------------------------------------
+
+\section{Correspondences}
+\label{sec:correspondences}
+
+Once the model and input images are described in a comparable manner, a relationship can be set between their keypoints. This is done by the means of a selected distance metric $d$ and a condition (typically a threshold $\tau$ on the distance) to accept a queried scene descriptor as a match to its model nearest neighbour. A set of point pairs, or \textit{correspondences}, is formed this way, from which the object pose is further inferred.
+
+From performance perspective, it is important to note that simply comparing all the features to find all possible matches between images is a quadratic operation in the number of selected keypoints. In real-time applications, this approach, namely \textit{bute-force} matching, is unfeasible for high dimensional feature vectors like SHOT or SIFT. An efficient alternative is to employ an indexing structure \cite{szeliski}, in example a hash-table or a Kd-tree (as described in \ref{sec:neighbourhood}). Search trees are comprehensively evaluated for this purpose in \cite{flann} and multiple randomized Kd-trees are concluded to achieve the best performance.
+%TODO: elaborate more from neighbourhood
+
+Despite the complexity optimizations of nearest neighbour search for real valued descriptors, they are still outperformed in matching time by binary descriptors, even with brute-force approach (see table XX). This is because computing the distance metric, i.e. the $L_2$ metric, is far more demanding than applying Hamming distance to binary features of the same dimensionality. The former requires costly floating point operations, while the Hamming distance is computed only with XOR and a bitcount, which is highly optimized on modern computing architectures with SSE instructions \cite{ORB}. Furthermore, in \cite{binaryFlann}, the authors propose a search tree specifically designed for binary features to further boosts the matching performance. Experimental results on the matching performance are provided in table XX.
+
+computation
 
 %---------------------------------------------------------------------------
 
 \section{Clustering}
 \label{sec:clustering}
 
-Once the input image is described in a comparable manner with the model, a relationship can be set between the input and model keypoints. This is done by the means of a selected distance metric $d$ and a condition (typically a threshold $\tau$ on the distance) to accept input image descriptor nearest neighbours in model as matches. A set of point pairs is formed this way, from which the object pose is further inferred.
+Keypoint correspondences established in the previous step represent only local similarities between the model and the scene. As a result, false matches may occur if a part of the scene, not belonging to the object, resembles locally a part of the model. Furthermore, the scene may contain multiple object instances, thus model keypoints may posess many counterparts in the scene and there may exist true matches with different inferred poses. For these reasons, the relationship between the correspondences has to be considered, in order to discard false matches and group together those that belong to the same object instance. There are three popular methods designed for this purpose: \textit{geometric consistency}, \textit{pose clustering} and \textit{hough voting} \cite{hough}.
 
-From performance perspective, it is important to note that simply comparing all the features to find all possible matches between images is a quadratic operation in the number of selected keypoints. In real-time applications, this approach, namely \textit{bute-force} matching, is unfeasible for high dimensional feature vectors like SHOT or SIFT. An efficient alternative is to employ an indexing structure \cite{szeliski}, in example a hash-table or a Kd-tree (as described in \ref{sec:neighbourhood}). Search trees are comprehensively evaluated for this purpose in \cite{flann} and the multiple randomized Kd-trees are concluded to achieve the best performance.
+The first method is based on the rigid transformation property to preserve distances between point pairs. Geometric consistency \cite{geometricConsistency,multiPipeline} grouping, starts from a seed correspondence $(p_i, q_i)$ and iteratively creates clusters of matches conforming to a distance constraint:
+\begin{equation}
+\left|\left\Vert p_i - p_j \right\Vert_2 - \left\Vert q_i - q_j \right\Vert_2\right| < \epsilon,
+\label{eq:correspondence-constrain}
+\end{equation}
+where $p$ and $q$ are model and scene keypoints, $i$ and $j$ are correspondence indexes and $\epsilon$ is a tuneable parameter called \textit{consensus set dimension}. Constrain \ref{eq:correspondence-constrain} enforces that the distance between two clustered model points is close to the distance of their corresponding matches within the scene, as depicted on figure \ref{fig:corr-constrain}. By ensuring that clustered corresondences meet rigid transformation requirement, this method imposes a weak condition for presence of a single object instance. Moreover, by providing a threshold of the subset size, a large number of false matches are rejected.
 
-Despite the complexity optimizations of nearest neighbour search for real valued descriptors, they are still outperformed by binary descriptors, even with brute-force approach (see table XX). This is because computing the distance metric, i.e. the $L_2$ metric, is far more demanding than applying Hamming distance to binary featurs. The former requires costly floating point operations, whilst the Hamming distance is computed only with a XOR and a bitcount, which is highly optimized on modern computing architectures with SSE instructions \cite{ORB}. Furthermore, in \cite{binaryFlann}, the authors propose a search tree specifically designed for binary features, which further boosts the matching performance. Experimental results on the matching performance are provided in table XX.
+The next approach, introduced in \cite{poseClustering}, requires additional information in the form of a LRF (as described in section \ref{sec:shape}) to be associated with each matched feature. By providing reference frames, rigid transformation can be directly computed from a single pair of corresponding keypoints. Rotation $R \in \mathbb{R}^{3\times 3}$ and translation $t \in \mathbb{R}^3$ are given by
+\begin{equation}
+R = R_q^T \cdot R_p,\ t = q - R\cdot p,
+\label{eq:corr-pose}
+\end{equation}
+where $p$ and $q$ are model and scene keypoints, and $R_p$, $R_q$ are rotation matrices with rows composed of LRF unit vectors of $p$ and $q$. The authors further propose to convert $R$ into Euler angles (algorithm for conversion is described i.e. in \cite{rotationToEuler}), concatenate the angles with translation, and use the resultant 6-dimensional vectors within a standard k-means clustering algorithm. Similarly to geometric consistency, larger groups of correspondences indicate a single object instance and clusters with size less than a given threshold are then discarded to cope with false matches.
 
-computation
+Finally, the last important technique is hough voting. \textit{Hough transform}, initially developed for detecting 2D lines in intensity images, became a widespread method for detecting arbitrary parameterized shapes \cite{generalizedHough}. The key idea of this method is to cast \textit{votes} on parameters from every feature point in the image and gather them in \textit{accumulator} structure. The accumulator is a $N$-dimensional grid over the parameter space, where $N$ is parameter dimensionality. Cells of this grid compose a histogram of votes on parameter values.
 
-Given set of matches need to group those that yield the same object pose
-geometric consistency \cite{geometricConsistency}, hough \cite{hough}
+In case of correspondence clustering, similarily to the previous method, Hough voting requires each feature to have associated LRF, to compute the pose for every match from eq. \ref{eq:corr-pose}. Using the same parameter space, hovewer, would lead to a sparse, 6-dimensional accumulator grid with computational and memory demands. To overcome this problem, in \cite{hough}, the authors propose to cast votes on the object centroid position, instead of its full 6D pose. Within an offline stage of the algorithm, each keypoint $p$ is associated with model centroid position $c_p$ in LRF coordinate system. During voting stage, each matched scene feature point $q$ transforms this centroid to the scene coordinate system, with
+\begin{equation}
+c_s = R_q^T \cdot c_p + q,
+\end{equation}
+where $R_q$ is a rotation matrix composed of LFR unit vectors at $q$. Centroid $c_s$ is used to cast votes over a 3-dimensional accumulator histogram. To account for quantization within the accumulator and the inaccuracy of LRF estimation, each bin is summed with its 6 closest neighbours. Peaks of the histogram that exceed a given threshold are considered to indicate a single object instance.
 
+Quantitative comparison of these three methods impl.
 
 %---------------------------------------------------------------------------
 
 \section{Alignment}
 \label{sec:alignment}
-
-
-
-umeyama \cite{umeyama}, ransac
-
+ 
+Having correspondences grouped in clusters, the next step is to estimate a common pose that they represent. Since the constrain from the grouping step apply only to the distance of the matched points, but not their direction, it does not fully discard correspondences not conforming to rigid transformation model (as illustrated in fig. \ref{fig:corr-constrain}). To account for such model \textit{outliers}, a robust estimator \textit{Random Sample Consensus} (RANSAC) \cite{ransacbase} is used to calculate the pose. In its basic form, the RANSAC algorithm is essentially composed of two, iteratively repeated steps \cite{wikipedia,ransacdummies}:
+\begin{enumerate}
+\item Firstly, a minimal sample subset is randomly selected from the input dataset, that allow for computing the model parameters. In case of rigid transformation, three point pairs are enough for a closed form solution \cite{umeyama}. Give umeyama solution.
+%TODO: Give umeyama solution
+\item Secondly, the remaining dataset points are tested to be consistent with the model computed in the sampling step. A data point will be considered as an inlier if it fits the computed model within a defined error threshold. The set of such elements is called a consensus set. If the consensus set contains enough points, the model is reestimated from all selected inliers and evaluated with the error of the inliers relative to the model.
+\end{enumerate}
+This procedure is then repeated until a termination condition is met, which usually is a fixed number of iterations.
+%TODO: Find out difference between umeyama and Closed-form solution of absolute orientation using unit quaternions

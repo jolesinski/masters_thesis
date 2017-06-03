@@ -1,6 +1,13 @@
 \chapter{Dense template matching}
 \label{cha:template}
 
+\section{Global description}
+\label{seq:global}
+
+The point cloud segmentation or cluster extraction is the process of grouping together data points that meet some common condition of similarity. Ideally, each of such segmented clusters represents a different object in the scene. A popular segmentation method is based on the euclidean distance. In this approach, two points are considered to belong to the same cluster, if their relative distance is less than a selected threshold. This process is similar to the flood-fill algorithm, popular in the 2D image processing. There are also other varieties of segmentation, i.e. based on the smoothness constraint or colour similarity.
+
+look for color-only descriptors
+
 \section{Ransac}
 \label{seq:ransac}
 

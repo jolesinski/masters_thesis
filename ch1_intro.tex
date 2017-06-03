@@ -1,23 +1,28 @@
 \chapter{Introduction}
 \label{cha:introduction}
 
-The aim of this work is to survey modern RGB-D image processing algorithms for model-based object recognition. Analysis of each method is focused on their usability in time and resource constrained robotic environment. Based on provided performance evaluation, selected methods are used to develop a complete, applicable in robotics, object recognition system.
+The aim of this work is to survey modern RGB-D image processing algorithms for model-based object instance recognition. Each method is analyzed with focus on its employment in time and resource constrained robotic environment. Based on provided performance evaluation, selected methods are used to develop a complete, applicable in robotics, object recognition system.
 
-The first chapter provides project background. A formal problem statement is included and followed by categorized solution proposals found in literature, outlining the scientific context of this work. The RGB-D imaging basics are subsequently introduced, together with software tools and test environment utilized throughout the project.
+The first chapter provides project background. A formal problem statement is followed by a brief literature review, introducing the main categorization of solution proposals into feature and template matching techniques. After outlining the scientific context of this work, software libraries and tools for RGB-D image processing used throughout the project are presented. Algorithm evaluation methodology, reference dataset and hardware used for performance assessment are summarized at the end of this chapter.
 
-Second chapter introduces common preprocessing techniques. Firstly, different data representation and conversion methods are discussed. Basic depth processing operations are introduced afterwards, including spatial transformations, neighbourhood selection and normal estimation. Different noise types encountered in RGB-D images and their corresponding filtering methods are further discussed.
+Second chapter introduces common pre-processing techniques for RGB-D images. At first, different data representation and conversion methods are discussed. Fundamental concepts in further processing, including neighborhood selection and surface normal estimation are introduced and evaluated afterwards. To finalize this chapter, different noise types encountered in RGB-D data are discussed together with their corresponding filtering methods.
+ 
+Model fitting with sparse feature matching algorithms is presented in chapter three. Selected keypoint detectors and descriptors of both color and shape modalities are compared. Efficient matching technique is provided. Correspondence clustering. Pose estimation methods are evaluated.
 
-Model fitting with sparse feature matching algorithms is presented in chapter three. Selected keypoint detectors and descriptors of both color and shape modalities are compared and an efficient matching technique is provided. Further, correspondence clustering and pose estimation methods are evaluated.
-% Pose estimation may go into postprocessing
+Template matching methods are discussed in the following chapter. Global features. Linemod. Bag of words. Neural networks.
 
-The following chapter is about 
+Postprocessing. Pose refinement. Hypothesis verification.
+
+Applications.
 
 %---------------------------------------------------------------------------
 
 \section{Problem statement}
 \label{sec:problem}
 
-%division to category/instance
+%TODO: division to category/instancem from Szelski 14.3
+Broad topic, \cite{szeliski}.
+
 Given an input image and an object of interest, the task of object recognition is to provide answer to the following questions:
 \begin{itemize}
 \item Is the queried object \textit{present} in the image?
@@ -45,6 +50,7 @@ Object recognition: why RGB-D
 %generic, open source system: mention ORK, V4R etc
 
 Survey of local methods \cite{surveyLocal}.
+Pipelines \cite{recognitionTutorial,multiPipeline}.
 
 %---------------------------------------------------------------------------
 
@@ -55,29 +61,15 @@ Throughout this work, most of the software was developed with an extensive use o
 
 The Open Computer Vision (OpenCV)\cite{OpenCV} library was utilized as another source of implementation for the analysed algorithms. OpenCV, which is a more mature project, developed since 1999 is likewise delivered under open source BSD license. While PCL is mainly focused on volumetric data analysis, OpenCV provides a wide array of functions for 2D intensity and color image processing.
 
-
+Modeling \cite{modellingV4R}
+V4R \cite{multiPipeline}
 % ROS
 % Ecto
-
-
-
-
 
 %---------------------------------------------------------------------------
 
 \section{Test environment}
 \label{sec:testhardware}
-
-Dataset Willow
-
-Recognition system was validated against sample dataset from XXX, which provides full object models together with real world scene scans and ground truth position annotations. To 
-
-% Multimodal blending sec. 3
-
-
-Dataset own
-Xtion sensor
-
 
 Timing perf hardware
 
@@ -98,6 +90,16 @@ Testing of implemented algorithms was done on two hardware platforms: an embedde
 \label{tab:hardware}
 \end{table}
 
+Dataset Willow
 
+Recognition system was validated against sample dataset from XXX, which provides full object models together with real world scene scans and ground truth position annotations. To 
+
+% Multimodal blending sec. 3
+
+%TODO:
+Dataset own using V4R and Xtion sensor
+
+% TODO:
+Precision vs Recall, ROC curves from Szelski
 
 %---------------------------------------------------------------------------
